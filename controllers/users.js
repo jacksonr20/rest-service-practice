@@ -17,11 +17,9 @@ const userPost = async (req = request, res = response) => {
   const { name, email, password, role } = req.body;
   const user = new User({ name, email, password, role });
 
-  // Hash password
   const salt = bcryptjs.genSaltSync();
   user.password = bcryptjs.hashSync(password, salt);
 
-  // Save
   await user.save();
 
   res.json({
@@ -29,12 +27,20 @@ const userPost = async (req = request, res = response) => {
   });
 };
 
-const userPut = (req = request, res = response) => {
+const userPut = async (req = request, res = response) => {
   const { id } = req.params;
+  const { _id, password, google, ...rest } = req.body;
+
+  if (password) {
+    const salt = bcryptjs.genSaltSync();
+    rest.password = bcryptjs.hashSync(password, salt);
+  }
+
+  const user = await User.findByIdAndUpdate(id, rest);
 
   res.json({
     msg: 'put API - Controller',
-    id,
+    user,
   });
 };
 
