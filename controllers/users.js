@@ -2,15 +2,16 @@ import { response, request } from 'express';
 import bcryptjs from 'bcryptjs';
 import { User } from '../models/user.js';
 
-const userGet = (req = request, res = response) => {
-  const { q, name = 'No name', apiKey } = req.query;
+const userGet = async (req = request, res = response) => {
+  const { limit = 5, from = 0 } = req.query;
+  const query = { status: true };
 
-  res.json({
-    msg: 'get API - Controller',
-    q,
-    name,
-    apiKey,
-  });
+  const [total, users] = await Promise.all([
+    User.countDocuments(query),
+    User.find(query).limit(Number(limit)).skip(Number(from)),
+  ]);
+
+  res.json({ total, users });
 };
 
 const userPost = async (req = request, res = response) => {
@@ -22,9 +23,7 @@ const userPost = async (req = request, res = response) => {
 
   await user.save();
 
-  res.json({
-    user,
-  });
+  res.json(user);
 };
 
 const userPut = async (req = request, res = response) => {
@@ -38,22 +37,15 @@ const userPut = async (req = request, res = response) => {
 
   const user = await User.findByIdAndUpdate(id, rest);
 
-  res.json({
-    msg: 'put API - Controller',
-    user,
-  });
+  res.json(user);
 };
 
-const userPatch = (req = request, res = response) => {
-  res.json({
-    msg: 'patch API - Controller',
-  });
-};
+const userDelete = async (req = request, res = response) => {
+  const { id } = req.params;
 
-const userDelete = (req = request, res = response) => {
-  res.json({
-    msg: 'delete API - Controller',
-  });
+  const user = await User.findByIdAndUpdate(id, { status: false });
+
+  res.json({ user });
 };
 
 export { userGet, userPost, userPut, userPatch, userDelete };
