@@ -9,7 +9,6 @@ import {
 import {
   userDelete,
   userGet,
-  userPatch,
   userPost,
   userPut,
 } from '../controllers/users.js';
@@ -42,7 +41,6 @@ router.put(
   validateFields,
   userPut
 );
-router.patch('/', userPatch);
 router.delete(
   '/:id',
   [

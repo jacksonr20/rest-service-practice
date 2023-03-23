@@ -48,4 +48,4 @@ const userDelete = async (req = request, res = response) => {
   res.json({ user });
 };
 
-export { userGet, userPost, userPut, userPatch, userDelete };
+export { userGet, userPost, userPut, userDelete };
