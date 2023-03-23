@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { validateFields } from '../middlewares/validateFields.js';
-import { emailExists, isValidRole } from '../database/helpers/validators.js';
+import {
+  emailExists,
+  isValidRole,
+  userExistsById,
+} from '../database/helpers/validators.js';
 import {
   userDelete,
   userGet,
@@ -28,7 +32,16 @@ router.post(
   ],
   userPost
 );
-router.put('/:id', userPut);
+router.put(
+  '/:id',
+  [
+    check('id', 'This is not a valid ID').isMongoId(),
+    check('id').custom(userExistsById),
+    check('role').custom(isValidRole),
+  ],
+  validateFields,
+  userPut
+);
 router.patch('/', userPatch);
 router.delete('/', userDelete);
 
