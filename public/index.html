@@ -1,12 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forbidden Access</title>
-</head>
-<body>
-    <h1>Forbidden Access</h1>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Sign-In</title>
+  </head>
+  <body>
+    <h1>Google Sign-In</h1>
+    <hr />
+
+    <div
+      id="g_id_onload"
+      data-client_id="611660503295-1v4k2gcnv24rk1ohklldbsdi1b1chrsi.apps.googleusercontent.com"
+      data-auto_prompt="false"
+      data-callback="handleCredentialResponse"
+    ></div>
+    <div
+      class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="outline"
+      data-text="sign_in_with"
+      data-shape="rectangular"
+      data-logo_alignment="left"
+    ></div>
+
+    <button id="google_signout">Sign out</button>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      function handleCredentialResponse(response) {
+        // Google Token: ID_TOKEN
+
+        const body = { id_token: response.credential };
+        var url = window.location.hostname.includes('localhost')
+          ? 'http://localhost:3000/api/auth/google'
+          : 'https://abcde.herokuapp.com/api/auth/google';
+        var myHeaders = new Headers();
+        myHeaders.append('Content-Type', 'application/json');
+
+        var myInit = {
+          method: 'POST',
+          headers: myHeaders,
+          mode: 'cors',
+          cache: 'default',
+          body: JSON.stringify(body),
+        };
+
+        var myRequest = new Request(url, myInit);
+
+        fetch(myRequest)
+          .then((res) => res.json())
+          .then((data) => {
+            console.log('Our server', data),
+              localStorage.setItem('email', data.user.email);
+          })
+          .catch(console.log);
+      }
+
+      const signOutButton = document.getElementById('google_signout');
+      signOutButton.onclick = () => {
+        console.log(google.accounts.id);
+        google.accounts.id.disableAutoSelect();
+
+        google.accounts.id.revoke(localStorage.getItem('email'), (done) => {
+          localStorage.clear();
+          location.reload();
+        });
+      };
+    </script>
+  </body>
 </html>
